@@ -35,7 +35,7 @@ function Ensure-Gh {
         throw 'Install GitHub CLI from https://cli.github.com/ and run this file again.'
     }
     Write-Host 'Installing GitHub CLI for signing in to GitHub...'
-    & winget install --id GitHub.cli --exact --accept-package-agreements --accept-source-agreements --silent
+    & winget install --id GitHub.cli --exact --accept-package-agreements --accept-source-agreements --silent | ForEach-Object { Write-Host $_ }
     if($LASTEXITCODE -ne 0){throw 'GitHub CLI installation failed. Install it from https://cli.github.com/.'}
     if(Test-Path -LiteralPath $known){return $known}
     $command=Get-Command gh -ErrorAction SilentlyContinue
