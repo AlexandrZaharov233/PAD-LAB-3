@@ -1,0 +1,17 @@
+**
+!requirements.txt
+!constraints.txt
+!parking_common/
+!parking_common/**
+!gateway/
+!gateway/**
+**/.env
+**/.env.*
+**/.local
+**/.local/**
+**/*.pem
+**/*.key
+**/*.db*
+**/*.log
+**/__pycache__
+**/__pycache__/**

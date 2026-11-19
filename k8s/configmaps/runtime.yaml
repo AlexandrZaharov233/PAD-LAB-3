@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: parkslot-runtime
+  labels:
+    app.kubernetes.io/part-of: parkslot
+data:
+  LOG_LEVEL: INFO
+  HTTP_TIMEOUT: '5'
+  DATABASE_PATH: /data/service.db
+  NATS_URL: nats://nats:4222
+  NATS_USER: parking
+  ADMIN_EMAIL: admin@parking.local
+  AUTH_URL: http://auth-service:8000
+  BOOKING_URL: http://booking-service:8000
+  MAINTENANCE_URL: http://maintenance-service:8000
+  NOTIFICATION_URL: http://notification-service:8000
+  PARKING_URL: http://parking-service:8000
+  PAYMENT_URL: http://payment-service:8000
+  PROFILE_URL: http://profile-service:8000
+  PROMOTION_URL: http://promotion-service:8000
+  REPORTING_URL: http://reporting-service:8000
+  WAITLIST_URL: http://waitlist-service:8000

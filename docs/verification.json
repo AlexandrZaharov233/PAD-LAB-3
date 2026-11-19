@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-19T12:30:27.712539+00:00",
+  "python": "3.12.14",
+  "platform": "linux",
+  "mode": "11 independent native HTTP processes + real NATS JetStream",
+  "docker_executed": false,
+  "versions": {
+    "fastapi": "0.162.0",
+    "nats-py": "2.16.0",
+    "httpx": "0.28.1",
+    "PyJWT": "2.15.1"
+  },
+  "checks": {
+    "unit_and_live_api": true,
+    "consumer_restart_durable_delivery": true,
+    "broker_restart_outbox_recovery": true,
+    "service_restart_persistence": true,
+    "correlated_logs": true
+  },
+  "pytest": {
+    "tests": 70,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

@@ -1,0 +1,202 @@
+name: parkslot-lab3
+
+x-common-env: &common-env
+  JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:-}
+  INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
+  NATS_URL: nats://nats:4222
+  NATS_USER: ${NATS_USER:-parking}
+  NATS_PASSWORD: ${NATS_PASSWORD:-}
+  AUTH_URL: http://auth-service:8000
+  PROFILE_URL: http://profile-service:8000
+  PARKING_URL: http://parking-service:8000
+  BOOKING_URL: http://booking-service:8000
+  PAYMENT_URL: http://payment-service:8000
+  NOTIFICATION_URL: http://notification-service:8000
+  PROMOTION_URL: http://promotion-service:8000
+  WAITLIST_URL: http://waitlist-service:8000
+  MAINTENANCE_URL: http://maintenance-service:8000
+  REPORTING_URL: http://reporting-service:8000
+  DATABASE_PATH: /data/service.db
+  HTTP_TIMEOUT: 5
+  LOG_LEVEL: INFO
+
+x-service: &service
+  restart: unless-stopped
+  init: true
+  networks: [parking]
+  environment: *common-env
+  depends_on:
+    nats: {condition: service_healthy}
+  healthcheck:
+    test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready',timeout=3)"]
+    interval: 10s
+    timeout: 5s
+    retries: 15
+    start_period: 15s
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: '3'}
+
+services:
+  nats:
+    image: nats:2.11.8-alpine
+    command: [-c, /etc/nats/nats.conf]
+    restart: unless-stopped
+    networks: [parking]
+    environment:
+      NATS_USER: ${NATS_USER:-parking}
+      NATS_PASSWORD: ${NATS_PASSWORD:-}
+    volumes:
+      - ./infrastructure/nats.conf:/etc/nats/nats.conf:ro
+      - nats-data:/data
+    ports: ['127.0.0.1:18222:8222']
+    healthcheck:
+      test: [CMD, wget, -q, -O, '-', 'http://localhost:8222/healthz']
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  auth-service:
+    <<: *service
+    image: parkslot/auth-service:lab3
+    build:
+      context: .
+      dockerfile: services/auth-service/Dockerfile
+    environment:
+      <<: *common-env
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@parking.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    volumes: [auth-data:/data]
+    ports: ['127.0.0.1:18011:8000']
+
+  profile-service:
+    <<: *service
+    image: parkslot/profile-service:lab3
+    build:
+      context: .
+      dockerfile: services/profile-service/Dockerfile
+    volumes: [profile-data:/data]
+    ports: ['127.0.0.1:18012:8000']
+
+  parking-service:
+    <<: *service
+    image: parkslot/parking-service:lab3
+    build:
+      context: .
+      dockerfile: services/parking-service/Dockerfile
+    volumes: [parking-data:/data]
+    ports: ['127.0.0.1:18013:8000']
+
+  booking-service:
+    <<: *service
+    image: parkslot/booking-service:lab3
+    build:
+      context: .
+      dockerfile: services/booking-service/Dockerfile
+    volumes: [booking-data:/data]
+    ports: ['127.0.0.1:18014:8000']
+
+  payment-service:
+    <<: *service
+    image: parkslot/payment-service:lab3
+    build:
+      context: .
+      dockerfile: services/payment-service/Dockerfile
+    volumes: [payment-data:/data]
+    ports: ['127.0.0.1:18015:8000']
+
+  notification-service:
+    <<: *service
+    image: parkslot/notification-service:lab3
+    build:
+      context: .
+      dockerfile: services/notification-service/Dockerfile
+    volumes: [notification-data:/data]
+    ports: ['127.0.0.1:18016:8000']
+
+  promotion-service:
+    <<: *service
+    image: parkslot/promotion-service:lab3
+    build:
+      context: .
+      dockerfile: services/promotion-service/Dockerfile
+    volumes: [promotion-data:/data]
+    ports: ['127.0.0.1:18017:8000']
+
+  waitlist-service:
+    <<: *service
+    image: parkslot/waitlist-service:lab3
+    build:
+      context: .
+      dockerfile: services/waitlist-service/Dockerfile
+    volumes: [waitlist-data:/data]
+    ports: ['127.0.0.1:18018:8000']
+
+  maintenance-service:
+    <<: *service
+    image: parkslot/maintenance-service:lab3
+    build:
+      context: .
+      dockerfile: services/maintenance-service/Dockerfile
+    volumes: [maintenance-data:/data]
+    ports: ['127.0.0.1:18019:8000']
+
+  reporting-service:
+    <<: *service
+    image: parkslot/reporting-service:lab3
+    build:
+      context: .
+      dockerfile: services/reporting-service/Dockerfile
+    volumes: [reporting-data:/data]
+    ports: ['127.0.0.1:18020:8000']
+
+  gateway:
+    <<: *service
+    image: parkslot/gateway:lab3
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    environment: *common-env
+    ports: ['127.0.0.1:8081:8000']
+    depends_on:
+      auth-service: {condition: service_healthy}
+      profile-service: {condition: service_healthy}
+      parking-service: {condition: service_healthy}
+      booking-service: {condition: service_healthy}
+      payment-service: {condition: service_healthy}
+      notification-service: {condition: service_healthy}
+      promotion-service: {condition: service_healthy}
+      waitlist-service: {condition: service_healthy}
+      maintenance-service: {condition: service_healthy}
+      reporting-service: {condition: service_healthy}
+
+  tests:
+    profiles: [test]
+    build:
+      context: .
+      dockerfile: infrastructure/Dockerfile
+      target: tests
+      args: {APP_PATH: services/auth-service}
+    networks: [parking]
+    environment:
+      RUN_E2E: '1'
+      E2E_URL: http://gateway:8000
+      E2E_ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@parking.local}
+      E2E_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+
+networks:
+  parking:
+
+volumes:
+  auth-data:
+  profile-data:
+  parking-data:
+  booking-data:
+  payment-data:
+  notification-data:
+  promotion-data:
+  waitlist-data:
+  maintenance-data:
+  reporting-data:
+  nats-data:

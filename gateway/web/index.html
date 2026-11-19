@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#163f36"><title>ParkSlot - бронирование парковок</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/style.css"><script defer src="/assets/features.js"></script><script defer src="/assets/app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-mark">P</span><span>ParkSlot<small>Ваше место в городе</small></span></a>
+    <div class="nav-label">ЛИЧНЫЙ КАБИНЕТ</div>
+    <nav aria-label="Основное меню">
+      <button class="nav-item active" data-view="parking"><span>▦</span> Найти парковку</button>
+      <button class="nav-item" data-view="bookings"><span>▤</span> Мои бронирования</button>
+      <button class="nav-item" data-view="waitlist"><span>◷</span> Лист ожидания</button>
+      <button class="nav-item" data-view="payments"><span>▱</span> История платежей</button>
+      <button class="nav-item" data-view="profile"><span>◎</span> Профиль и автомобили</button>
+      <button class="nav-item" data-view="notifications"><span>♧</span> Уведомления <b id="unread" class="count hidden">0</b></button>
+      <button class="nav-item hidden" id="admin-nav" data-view="admin" data-admin-view><span>⚙</span> Управление</button>
+      <button class="nav-item hidden" data-view="promotions" data-admin-view><span>％</span> Промокоды</button>
+      <button class="nav-item hidden" data-view="maintenance" data-admin-view><span>◇</span> Обслуживание</button>
+      <button class="nav-item hidden" data-view="reports" data-admin-view><span>▥</span> Отчёты</button>
+    </nav>
+    <div class="sidebar-bottom"><span class="status-dot" id="connection-dot"></span><span id="connection-text">Проверяем соединение</span>
+      <button class="text-link" id="docs-button">Документация API ↗</button>
+      <small>Учебный проект · Лабораторная №2</small>
+    </div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span id="breadcrumb">Парковки / Поиск места</span><div class="account"><span id="account-name">Гость</span><button class="button secondary small" id="auth-button">Войти</button></div></header>
+    <main>
+      <div class="page-heading"><div><div class="eyebrow">МЕНЬШЕ ПОИСКОВ. БОЛЬШЕ ВРЕМЕНИ.</div><h1 id="page-title">Найдите своё место</h1><p id="page-subtitle">Выберите парковку и забронируйте место заранее.</p></div><span class="local-badge">Локальная версия</span></div>
+      <div id="alert" class="alert hidden" role="alert"></div>
+      <section id="content" aria-live="polite"><div class="empty">Загружаем парковки…</div></section>
+      <footer>ParkSlot · Тариф за каждый начатый час · Все платежи учебные</footer>
+    </main>
+  </div>
+  <dialog id="auth-dialog"><form id="auth-form"><div class="modal-heading"><h2 id="auth-title">С возвращением</h2><button type="button" class="icon-button" data-close="auth-dialog" aria-label="Закрыть">×</button></div>
+    <p class="muted" id="auth-caption">Войдите, чтобы бронировать места и управлять поездками.</p>
+    <label id="name-label" class="hidden">Ваше имя<input name="name" minlength="2" maxlength="80" autocomplete="name"></label>
+    <label>Электронная почта<input name="email" type="email" required autocomplete="username"></label>
+    <label>Пароль<input name="password" type="password" minlength="10" maxlength="128" required autocomplete="current-password"></label>
+    <div id="auth-error" class="form-error" role="alert"></div><button class="button full" type="submit" id="auth-submit">Войти</button>
+    <button type="button" class="text-link auth-toggle" id="auth-toggle">Нет аккаунта? Зарегистрироваться</button>
+  </form></dialog>
+  <dialog id="payment-dialog"><div class="modal-heading"><h2>Учебная оплата</h2><button class="icon-button" data-close="payment-dialog" aria-label="Закрыть">×</button></div>
+    <div class="demo-note">Демонстрация платёжного сценария. Реальные деньги не списываются.</div><div id="payment-info"></div>
+    <label>Результат операции<select id="payment-outcome"><option value="success">Успешная оплата</option><option value="decline">Отклонённая оплата</option></select></label>
+    <div id="payment-error" class="form-error"></div><button class="button full" id="payment-submit">Подтвердить учебную оплату</button>
+  </dialog>
+  <dialog id="docs-dialog"><div class="modal-heading"><h2>API десяти сервисов</h2><button class="icon-button" data-close="docs-dialog" aria-label="Закрыть">×</button></div><p class="muted">Swagger открывается в новой вкладке.</p><div id="docs-list"></div></dialog>
+  <div id="toast" class="toast hidden" role="status"></div>
+</body>
+</html>
